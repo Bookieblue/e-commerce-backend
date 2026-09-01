@@ -1,7 +1,6 @@
-import express from "express"
+import express from "express";
 
 const router = express.Router();
-
 
 /**
  * @swagger
@@ -27,7 +26,7 @@ const router = express.Router();
  */
 
 router.get("/", (res, req) => {
-    res.statusCode(200).json({ success: true, message: "API is healthy" })
-})
+  res.statusCode(200).json({ success: true, message: "API is healthy" });
+});
 
-export default router
+export default router;

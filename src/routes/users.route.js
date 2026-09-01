@@ -1,12 +1,15 @@
-import express from "express"
-import { getUsers, patchUser, getUser } from "../controller/users.controller.js";
-
+import express from "express";
+import {
+  getUsers,
+  patchUser,
+  getUser,
+} from "../controller/users.controller.js";
 
 const router = express();
 
 /**
  * @swagger
- * /api/user:
+ * /api/v1/users:
  *   get:
  *     summary: Retrieve a list of users
  *     responses:
@@ -27,9 +30,7 @@ const router = express();
  *                     example: John Doe
  */
 router.get("/users", getUsers);
-router.get('/users/:id', getUser);
-router.patch('/users/:id', patchUser);
-
-
+router.get("/users/:id", getUser);
+router.patch("/users/:id", patchUser);
 
 export default router;
