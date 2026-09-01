@@ -1,6 +1,6 @@
 import pg from "pg";
 import dotenv from "dotenv";
-import { usersTable } from "../migrations/createTables.js";
+import { alterUsersTable, usersTable } from "../migrations/createTables.js";
 
 dotenv.config();
 
@@ -32,9 +32,11 @@ export const migration = async () => {
   const client = await db.connect();
   try {
     await client.query(usersTable);
-    console.log("User Table Created Successfully");
+
+    await client.query(alterUsersTable);
+    console.log("User Table Created and migrated Successfully");
   } catch (error) {
-    console.error("Error creating Table:", error);
+    console.error("Error creating/migrating Table:", error);
   } finally {
     client.release();
   }
