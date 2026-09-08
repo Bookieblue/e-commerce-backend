@@ -3,6 +3,8 @@ import {
   loginUser,
   Logout,
   registerUser,
+  resendVerificationEmail,
+  verifyEmail,
 } from "../controller/auth.controller.js";
 
 const router = express.Router();
@@ -52,6 +54,61 @@ router.post("/register", registerUser);
 
 /**
  * @swagger
+ * /api/v1/auth/verify-email:
+  *   post:
+ *     summary: Verify email address using OTP
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [otp]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: john@gmail.com
+ *               otp:
+ *                 type: string
+ *                 example: "12345"
+ *     responses:
+ *       200:
+ *         description: Email Verified successful
+ *       401:
+ *         description: Invalid or expired OTP
+ 
+ */
+
+router.post("/verify-email", verifyEmail);
+
+/**
+ * @swagger
+ * /api/v1/auth/resend-verification:
+ *   post:
+ *     summary: Resend 6-digit OTP code to user email
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: john@gmail.com
+ *
+ *     responses:
+ *       200:
+ *         description:New OTP code sent successful
+ */
+
+router.post("/resend-verification", resendVerificationEmail);
+
+/**
+ * @swagger
  * /api/v1/auth/login:
   *   post:
  *     summary: Login user
@@ -71,10 +128,10 @@ router.post("/register", registerUser);
  *                 type: string
  *                 example: password123
  *     responses:
- *       201:
- *         description: User login successfully
- *       409:
- *         description: Email already exists
+ *       200:
+ *         description: Login successfully
+ *       401:
+ *         description: Invalid credentials
  
  */
 router.post("/login", loginUser);

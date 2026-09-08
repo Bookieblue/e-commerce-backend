@@ -54,3 +54,20 @@ export const setVerificationOtp = async (userId, otp, expiresAt) => {
     [otp, expiresAt, userId],
   );
 };
+
+export const findUserByEmailAndOtp = async (email, otp) => {
+  const result = await db.query(
+    `SELECT * FROM users 
+     WHERE email = $1
+     AND otp_code = $2
+     AND otp_expires > NOW()
+    
+    `,
+    [email, otp],
+  );
+  return result.rows[0];
+};
+
+export const verifyUserEmail = async (userId) => {
+  await db.query();
+};

@@ -23,6 +23,7 @@ export const connectDB = async () => {
   try {
     const response = await db.query("SELECT NOW()");
     console.log("Database Connected", response.rows[0].now);
+    await migration();
   } catch (error) {
     console.error("error connecting to DB", error);
   }
