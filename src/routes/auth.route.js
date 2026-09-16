@@ -12,7 +12,7 @@ const router = express.Router();
 /**
  * @swagger
  * /api/v1/auth/register:
-  *   post:
+ *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
  *     requestBody:
@@ -47,15 +47,13 @@ const router = express.Router();
  *         description: User registered successfully
  *       409:
  *         description: Email already exists
- 
  */
-
 router.post("/register", registerUser);
 
 /**
  * @swagger
  * /api/v1/auth/verify-email:
-  *   post:
+ *   post:
  *     summary: Verify email address using OTP
  *     tags: [Authentication]
  *     requestBody:
@@ -64,22 +62,20 @@ router.post("/register", registerUser);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [otp]
+ *             required: [email, otp]
  *             properties:
  *               email:
  *                 type: string
  *                 example: john@gmail.com
  *               otp:
  *                 type: string
- *                 example: "12345"
+ *                 example: "123456"
  *     responses:
  *       200:
- *         description: Email Verified successful
- *       401:
+ *         description: Email verified successfully
+ *       400:
  *         description: Invalid or expired OTP
- 
  */
-
 router.post("/verify-email", verifyEmail);
 
 /**
@@ -99,18 +95,16 @@ router.post("/verify-email", verifyEmail);
  *               email:
  *                 type: string
  *                 example: john@gmail.com
- *
  *     responses:
  *       200:
- *         description:New OTP code sent successful
+ *         description: New OTP code sent successfully
  */
-
 router.post("/resend-verification", resendVerificationEmail);
 
 /**
  * @swagger
  * /api/v1/auth/login:
-  *   post:
+ *   post:
  *     summary: Login user
  *     tags: [Authentication]
  *     requestBody:
@@ -132,9 +126,29 @@ router.post("/resend-verification", resendVerificationEmail);
  *         description: Login successfully
  *       401:
  *         description: Invalid credentials
- 
  */
 router.post("/login", loginUser);
+
+/**
+ * @swagger
+ * /api/v1/auth/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "your-refresh-token"
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ */
 router.post("/logout", Logout);
 
 export default router;

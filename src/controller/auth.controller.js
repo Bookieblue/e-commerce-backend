@@ -34,6 +34,14 @@ const generateTokens = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" },
+  );
+
+  const refreshToken = jwt.sign(
+    {
+      id: user.id,
+    },
+    process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d" },
   );
 
@@ -54,16 +62,29 @@ export const registerUser = async (req, res) => {
   try {
     const { first_name, last_name, email, password, role, gender } = req.body;
 
-    const existingUser = await findUserByEmail(email);
-    console.log("Existing user result:", existingUser);
-    console.log("Array length:", existingUser?.length);
+    if (!first_name || !last_name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All information required",
+      });
+    }
 
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "User email already exists",
+        message: "An account with that email already exists",
       });
     }
+    console.log("Existing user result:", existingUser);
+    console.log("Array length:", existingUser?.length);
+
+    // if (existingUser.length === 0) {
+    //   return res.status(409).json({
+    //     success: false,
+    //     message: "User email already exists",
+    //   });
+    // }
 
     //generate OTP
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -128,7 +149,13 @@ export const verifyEmail = async (req, res) => {
       success: true,
       message: "Email verified successfull",
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Verify Email Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server Error",
+    });
+  }
 };
 
 export const resendVerificationEmail = async (req, res) => {
@@ -136,7 +163,7 @@ export const resendVerificationEmail = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).sjon({
+      return res.status(400).json({
         success: false,
         message: "Email is required",
       });
@@ -168,7 +195,8 @@ export const resendVerificationEmail = async (req, res) => {
       dev_otp: otp,
     });
   } catch (error) {
-    console.log("Resend Vefication Error:", error);
+    console.error("Resend Vefication Error:", error);
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -242,8 +270,28 @@ export const loginUser = async (req, res) => {
 };
 
 export const Logout = async (req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "Logged Out Successfully",
-  });
+  try {
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (req.user) {
+      await updateRefreshToken(req.user.id, null);
+    } else if (refreshToken) {
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+        await updateRefreshToken(decoded.id, null);
+      } catch (error) {}
+    }
+
+    clearAuthCookies(res);
+    return res.status(200).json({
+      success: true,
+      message: "Logged Out Successfully",
+    });
+  } catch (error) {
+    console.error("Logged out Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server Error",
+    });
+  }
 };

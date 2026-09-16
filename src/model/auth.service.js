@@ -5,14 +5,13 @@ export const findUserByEmail = async (email) => {
   const response = await db.query("SELECT * FROM users WHERE email = $1", [
     email,
   ]);
-  return response.rows[0];
+  return response.rows[0] || null;
 };
 
 export const findUserById = async (id) => {
   const result = await db.query("SELECT * FROM users WHERE id = $1", [id]);
-  return result.row[0];
+  return result.rows[0] || null;
 };
-
 export const createUser = async ({
   first_name,
   last_name,
@@ -55,19 +54,44 @@ export const setVerificationOtp = async (userId, otp, expiresAt) => {
   );
 };
 
+// export const findUserByEmailAndOtp = async (email, otp) => {
+//   const result = await db.query(
+//     `SELECT * FROM users
+//      WHERE email = $1
+//      AND otp_code = $2
+//      AND otp_expires > NOW()
+
+//     `,
+//     [email, otp],
+//   );
+//   return result.rows[0];
+// };
+
 export const findUserByEmailAndOtp = async (email, otp) => {
+  console.log("VERIFY EMAIL:", email);
+  console.log("VERIFY OTP:", otp);
+
   const result = await db.query(
-    `SELECT * FROM users 
-     WHERE email = $1
-     AND otp_code = $2
-     AND otp_expires > NOW()
-    
-    `,
+    `SELECT * FROM users  
+     WHERE email = $1 
+     AND otp_code = $2 
+     AND otp_expires > NOW()`,
     [email, otp],
   );
+
+  console.log("OTP QUERY RESULT:", result.rows);
+
   return result.rows[0];
 };
-
 export const verifyUserEmail = async (userId) => {
-  await db.query();
+  const response = await db.query(
+    `UPDATE users 
+    SET is_verified = true,
+      otp_code = NULL,
+      otp_expires = NULL
+   WHERE id = $1
+   RETURNING *`,
+    [userId],
+  );
+  return response.rows[0];
 };
