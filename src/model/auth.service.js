@@ -95,3 +95,33 @@ export const verifyUserEmail = async (userId) => {
   );
   return response.rows[0];
 };
+
+export const setResetOtp = async (userId, otp, expiresAt) => {
+  await db.query(
+    "UPDATE users SET reset_otp = $1, reset_otp_expires =$2 WHERE ID = $3  ",
+    [otp, expiresAt, userId],
+  );
+};
+
+export const findUserByResetOtp = async (email, otp) => {
+  const response = await db.query(
+    `
+    SELECT * FROM users   
+    WHERE email = $1
+        AND reset_otp = $2
+         AND reset_otp_expires > NOW() `,
+    [email, otp],
+  );
+  return response.rows[0];
+};
+
+export const updatePasswordAndClearRestOtp = async (userId, newPassword) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await db.query(
+    `UPDATE users
+    SET password = $1, reset_otp = NULL, reset_otp_expires = NULL
+    WHERE id = $2`,
+    [hashedPassword, userId],
+  );
+};

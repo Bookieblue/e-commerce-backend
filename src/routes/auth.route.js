@@ -4,6 +4,7 @@ import {
   Logout,
   registerUser,
   resendVerificationEmail,
+  resetPassword,
   verifyEmail,
 } from "../controller/auth.controller.js";
 
@@ -150,5 +151,39 @@ router.post("/login", loginUser);
  *         description: Logout successful
  */
 router.post("/logout", Logout);
+
+/**
+ * @swagger
+ * /api/v1/auth/reset-password:
+ *   post:
+ *     summary: Reset Password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *               - newPassword
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: john@gmail.com
+ *               otp:
+ *                 type: string
+ *                 example: "234543"
+ *               newPassword:
+ *                 type: string
+ *                 example: newpassword
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired OTP
+ */
+router.post("/reset-password", resetPassword);
 
 export default router;
